@@ -25,7 +25,7 @@ Overall Data Flow
 3. MapperB → ReducerB: form document pairs, count overlaps, compute Jaccard.
 4. Driver chains both jobs and writes results into `/out/.../final/`.
 Setup and Execution
-⚠️ Note: The below commands are adapted to this assignment.
+Note: The below commands are adapted to this assignment.
 1. Start the Hadoop Cluster
 docker compose up -d
 2. Build the Code
