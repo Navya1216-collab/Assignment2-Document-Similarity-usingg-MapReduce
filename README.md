@@ -1,4 +1,3 @@
-Assignment 2: Document Similarity using MapReduce
 Name: NAVYA REDDY THADISANA
 Student ID: 801425759
 Approach and Implementation
