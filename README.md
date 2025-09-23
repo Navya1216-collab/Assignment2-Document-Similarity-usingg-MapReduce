@@ -29,30 +29,45 @@ Step-by-Step Execution Guide
 ```
 docker compose up -d
 ```
-3. Build the Code
+2. Build the Code
 ```
 mvn clean package
 ```
-5. Copy JAR to Namenode
+3. Copy JAR to Namenode
+```
 NN=$(docker compose ps -q namenode)
 docker cp target/DocumentSimilarity-0.0.1-SNAPSHOT.jar "$NN":/tmp/docsim.jar
-6. Upload Input Dataset to HDFS
+```
+4. Upload Input Dataset to HDFS
+```
 docker compose exec namenode hdfs dfs -mkdir -p /input
 docker cp dataset/three_docs_input.txt "$NN":/tmp/three_docs_input.txt
 docker compose exec namenode hdfs dfs -put -f /tmp/three_docs_input.txt /input/
-7. Run the MapReduce Job
+```
+5. Run the MapReduce Job
+```
 docker compose exec namenode hdfs dfs -rm -r -f /out/three_docs_run
 docker compose exec namenode hadoop jar /tmp/docsim.jar
 com.example.controller.DocumentSimilarityDriver /input/three_docs_input.txt /out/three_docs_run
-8. View the Output
+```
+6. View the Output
+```
 docker compose exec namenode hdfs dfs -cat /out/three_docs_run/final/part-*
-9. Save Output to Repository
+```
+7. Save Output to Repository
+```
 docker compose exec namenode hdfs dfs -get -f /out/three_docs_run/final/part-*
 /tmp/three_docs_output.txt
 docker cp "$NN":/tmp/three_docs_output.txt results/three_docs_output.txt
-10. Run on Single Datanode (1-node test)
+```
+8. Run on Single Datanode (1-node test)
+```
 docker compose up -d --scale datanode=1
-Run again, saving results as results/three_docs_output_1node.txt.
+```
+9.Run again, saving results as
+```
+results/three_docs_output_1node.txt.
+```
 ------------------------------------------------------------
 Challenges and Solutions
 - Path Issues (Maven build): Initially, Java files were under src/main/com/...
@@ -73,7 +88,7 @@ Sample Output (Expected)
 document1, document2 Similarity: 0.56
 document1, document3 Similarity: 0.42
 document2, document3 Similarity: 0.50
-
+---------------------------------------------------------------------------
 
 Obtained Output
 3-Node Run
@@ -98,3 +113,23 @@ Assignment2-Document-Similarity-usingg-MapReduce/
 ■ controller/DocumentSimilarityDriver.java
 ■ README.md
 ■ pom.xml
+
+-----------------------------------------------------------
+## Observations
+
+- **Execution Time**
+  - 3-Node Run: ~8–10 seconds
+  - 1-Node Run: ~20–25 seconds
+  - Multi-node was ~2–3× faster.
+
+- **Similarity Results**
+  - Both runs produced identical similarity scores → consistency confirmed.
+
+- **Cluster Utilization**
+  - 3-Node Run: Distributed workload across nodes.
+  - 1-Node Run: Single node handled all tasks → slower.
+
+- **Scalability**
+  - Same output in both runs shows correctness.
+  - Larger clusters mainly improve speed, not results.
+
